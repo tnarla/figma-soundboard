@@ -1,0 +1,11 @@
+{
+  "include": ["./code.tsx", "./plugin-typings"],
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "figma.widget.h",
+    "target": "es6",
+    "lib": ["es6"],
+    "outFile": "./dist/code.js",
+    "typeRoots": []
+  }
+}

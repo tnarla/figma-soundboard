@@ -1,0 +1,31 @@
+{
+  "name": "WidgetTemplate",
+  "version": "1.0.0",
+  "description": "WidgetTemplate",
+  "scripts": {
+    "zip": "mkdir -p out && npm run build && zip -r out/create-widget-app.zip . -x node_modules/\\* -x plugin-typings/node_modules/\\* -x .\\* -x out/\\* -x plugin-typings/*.zip plugin-typings/.\\*",
+    "format": "prettier --write .",
+    "build:main": "tsc",
+    "build:ui": "npx vite build --minify esbuild --emptyOutDir=false",
+    "build:main:watch": "tsc --watch",
+    "build:ui:watch": "npx vite build --minify esbuild --emptyOutDir=false --watch",
+    "build": "npm run build:ui && npm run build:main",
+    "dev:ui": "npx vite",
+    "test": "tsc --noEmit"
+  },
+  "author": "Figma",
+  "license": "MIT License",
+  "dependencies": {
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.2",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@vitejs/plugin-react-refresh": "^1.3.1",
+    "vite-plugin-singlefile": "^0.5.1",
+    "prettier": "^2.3.2",
+    "vite": "^2.5.2"
+  }
+}
