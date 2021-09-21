@@ -1,5 +1,7 @@
 # create-widget-app
 
+![Screen Shot 2021-09-21 at 4 27 20 PM](https://user-images.githubusercontent.com/5661037/134260676-15eba455-0338-4811-bc41-d0dd0e568909.png)
+
 Template app that creates a widget & react iframe.
 
 Code organization:
