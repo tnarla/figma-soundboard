@@ -6,11 +6,13 @@ const {
   useEffect,
   Text: WidgetText,
   Frame,
+  Image: WidgetImage,
 } = widget;
 
 interface Sound {
   url: string;
   name: string;
+  imageUrl?: string;
 }
 
 function Widget() {
@@ -33,7 +35,7 @@ function Widget() {
       figma.ui.postMessage(sound);
 
       figma.ui.once("message", ({ type }) => {
-        if (type === "close") {
+        if (type === "addSound") {
           resolve();
         }
       });
@@ -63,7 +65,15 @@ function Widget() {
     };
   });
 
-  console.log(sounds, chunkArray(sounds, 2));
+  const colors = [
+    "#EF4444",
+    "#F59E0B",
+    "#10B981",
+    "#3B82F6",
+    "#6366F1",
+    "#8B5CF6",
+    "#EC4899",
+  ];
 
   return (
     <AutoLayout
@@ -119,17 +129,34 @@ function Widget() {
                   onClick={() => playSound(sound)}
                   width={100}
                   height={130}
-                  fill="#F17272"
+                  fill={
+                    colors[
+                      sound.name
+                        .split()
+                        .reduce((a, b) => b.charCodeAt(0) + a, 0) %
+                        colors.length
+                    ]
+                  }
+                  cornerRadius={8}
                 >
-                  <WidgetText
-                    fontSize={16}
-                    width="fill-parent"
-                    height="fill-parent"
-                    horizontalAlignText="center"
-                    verticalAlignText="center"
-                  >
-                    {sound.name}
-                  </WidgetText>
+                  {sound.imageUrl ? (
+                    <WidgetImage
+                      width="fill-parent"
+                      height="fill-parent"
+                      src={sound.imageUrl}
+                    ></WidgetImage>
+                  ) : (
+                    <WidgetText
+                      fontSize={16}
+                      width="fill-parent"
+                      height="fill-parent"
+                      horizontalAlignText="center"
+                      verticalAlignText="center"
+                      fill="#ffffff"
+                    >
+                      {sound.name}
+                    </WidgetText>
+                  )}
                 </AutoLayout>
               );
             })}
@@ -156,7 +183,7 @@ function Widget() {
           fill="#ffffff"
           fontWeight="bold"
         >
-          New
+          New Sound
         </WidgetText>
       </AutoLayout>
     </AutoLayout>

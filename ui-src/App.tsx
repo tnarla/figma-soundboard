@@ -4,12 +4,14 @@ import "./App.css";
 interface Sound {
   url: string;
   name: string;
+  imageUrl?: string;
 }
 
 function App() {
   const [sound, setSound] = useState<Sound>();
   const [newSoundName, setNewSoundName] = useState("");
   const [newSoundUrl, setNewSoundUrl] = useState("");
+  const [newSoundImage, setNewSoundImage] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -44,16 +46,30 @@ function App() {
 
   if (sound && sound.name === "new") {
     return (
-      <div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <input
+          style={{ marginBottom: 8 }}
           aria-label="Name"
           placeholder="Name"
           onChange={(e) => setNewSoundName(e.target.value)}
         ></input>
         <input
+          style={{ marginBottom: 8 }}
           aria-label="URL"
           placeholder="URL"
           onChange={(e) => setNewSoundUrl(e.target.value)}
+        ></input>
+        <input
+          style={{ marginBottom: 8 }}
+          aria-label="Image Url"
+          placeholder="Image Url"
+          onChange={(e) => setNewSoundImage(e.target.value)}
         ></input>
 
         <button
@@ -63,7 +79,7 @@ function App() {
                 {
                   pluginMessage: {
                     type: "addSound",
-                    payload: { url: newSoundUrl, name: newSoundName },
+                    payload: { url: newSoundUrl, name: newSoundName, imageUrl: newSoundImage },
                   },
                 },
                 "*"
