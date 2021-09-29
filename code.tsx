@@ -17,6 +17,8 @@ interface Sound {
 }
 
 function Widget() {
+  const [sounds, setSounds] = useSyncedState<Sound[]>("sounds", []);
+
   async function playSound(sound: Sound) {
     await new Promise<void>((resolve) => {
       figma.showUI(__html__, { visible: false });
@@ -32,7 +34,7 @@ function Widget() {
 
   async function newSound(sound: Sound) {
     await new Promise<void>((resolve) => {
-      figma.showUI(__html__);
+      figma.showUI(__html__, {height: 300});
       figma.ui.postMessage(sound);
 
       figma.ui.once("message", ({ type }) => {
@@ -42,8 +44,6 @@ function Widget() {
       });
     });
   }
-
-  const [sounds, setSounds] = useSyncedState<Sound[]>("sounds", []);
 
   usePropertyMenu(
     [
@@ -61,7 +61,7 @@ function Widget() {
     }
   );
 
-  function chunkArray(array, size) {
+  function chunkArray<T>(array: T[], size: number) {
     let result = [];
     for (let i = 0; i < array.length; i += size) {
       let chunk = array.slice(i, i + size);
