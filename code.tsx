@@ -1,4 +1,5 @@
 const { widget, ui } = figma;
+
 const {
   AutoLayout,
   Rectangle,
@@ -17,7 +18,10 @@ interface Sound {
 }
 
 function Widget() {
-  const [sounds, setSounds] = useSyncedState<Sound[]>("sounds", []);
+  const [sound, setSound] = useSyncedState<Sound | undefined>(
+    "sound",
+    undefined
+  );
 
   async function playSound(sound: Sound) {
     await new Promise<void>((resolve) => {
@@ -34,7 +38,7 @@ function Widget() {
 
   async function newSound(sound: Sound) {
     await new Promise<void>((resolve) => {
-      figma.showUI(__html__, {height: 300});
+      figma.showUI(__html__, { height: 300 });
       figma.ui.postMessage(sound);
 
       figma.ui.once("message", ({ type }) => {
@@ -45,35 +49,10 @@ function Widget() {
     });
   }
 
-  usePropertyMenu(
-    [
-      {
-        tooltip: "Edit",
-        propertyName: "edit",
-        itemType: "action",
-        icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5858 3.58579C14.3669 2.80474 15.6332 2.80474 16.4143 3.58579C17.1953 4.36683 17.1953 5.63316 16.4143 6.41421L15.6214 7.20711L12.793 4.37868L13.5858 3.58579Z" fill="#ffffff"/><path d="M11.3787 5.79289L3.00006 14.1716V17H5.82849L14.2072 8.62132L11.3787 5.79289Z" fill="#ffffff"/></svg>',
-      },
-    ],
-    async ({ propertyName }) => {
-      if (propertyName === "edit") {
-        await newSound({ url: "", name: "new" });
-      }
-    }
-  );
-
-  function chunkArray<T>(array: T[], size: number) {
-    let result = [];
-    for (let i = 0; i < array.length; i += size) {
-      let chunk = array.slice(i, i + size);
-      result.push(chunk);
-    }
-    return result;
-  }
-
   useEffect(() => {
     figma.ui.onmessage = (message) => {
       if (message.type === "addSound") {
-        setSounds([...sounds, message.payload]);
+        setSound(message.payload);
         figma.ui.close();
       }
       if (message.type === "close") {
@@ -97,9 +76,9 @@ function Widget() {
       direction="vertical"
       horizontalAlignItems="center"
       verticalAlignItems="center"
-      width={250}
+      width="hug-contents"
       height="hug-contents"
-      padding={16}
+      padding={8}
       fill="#FFFFFF"
       cornerRadius={8}
       effect={{
@@ -110,99 +89,59 @@ function Widget() {
       }}
       spacing={12}
     >
-      <AutoLayout
-        direction="vertical"
-        horizontalAlignItems="start"
-        verticalAlignItems="center"
-        width="fill-parent"
-        height={48}
-      >
-        <WidgetText
-          fontSize={24}
-          width="fill-parent"
-          height="fill-parent"
-          horizontalAlignText="left"
-          verticalAlignText="center"
-          fill="#000000"
-          fontWeight="semi-bold"
+      {sound ? (
+        <AutoLayout
+          onClick={() => playSound(sound)}
+          width={100}
+          height={130}
+          fill={
+            colors[
+              sound.name.split("").reduce((a, b) => b.charCodeAt(0) + a, 0) %
+                colors.length
+            ]
+          }
+          cornerRadius={8}
         >
-          Soundboard
-        </WidgetText>
-      </AutoLayout>
-
-      {chunkArray(sounds, 2).map((soundPairs) => {
-        return (
-          <AutoLayout
-            direction="horizontal"
-            horizontalAlignItems="start"
-            verticalAlignItems="center"
+          {sound.imageUrl ? (
+            <WidgetImage
+              width="fill-parent"
+              height="fill-parent"
+              src={sound.imageUrl}
+            ></WidgetImage>
+          ) : (
+            <WidgetText
+              fontSize={16}
+              width="fill-parent"
+              height="fill-parent"
+              horizontalAlignText="center"
+              verticalAlignText="center"
+              fill="#ffffff"
+            >
+              {sound.name}
+            </WidgetText>
+          )}
+        </AutoLayout>
+      ) : (
+        <AutoLayout
+          onClick={() => newSound({ url: "", name: "new" })}
+          width={100}
+          height={130}
+          fill="#8B5CF6"
+          cornerRadius={8}
+        >
+          <WidgetText
+            fontSize={12}
             width="fill-parent"
-            height="hug-contents"
-            spacing={20}
+            height="fill-parent"
+            horizontalAlignText="center"
+            verticalAlignText="center"
+            fill="#ffffff"
+            fontWeight="bold"
           >
-            {soundPairs.map((sound) => {
-              return (
-                <AutoLayout
-                  onClick={() => playSound(sound)}
-                  width={100}
-                  height={130}
-                  fill={
-                    colors[
-                      sound.name
-                        .split()
-                        .reduce((a, b) => b.charCodeAt(0) + a, 0) %
-                        colors.length
-                    ]
-                  }
-                  cornerRadius={8}
-                >
-                  {sound.imageUrl ? (
-                    <WidgetImage
-                      width="fill-parent"
-                      height="fill-parent"
-                      src={sound.imageUrl}
-                    ></WidgetImage>
-                  ) : (
-                    <WidgetText
-                      fontSize={16}
-                      width="fill-parent"
-                      height="fill-parent"
-                      horizontalAlignText="center"
-                      verticalAlignText="center"
-                      fill="#ffffff"
-                    >
-                      {sound.name}
-                    </WidgetText>
-                  )}
-                </AutoLayout>
-              );
-            })}
-          </AutoLayout>
-        );
-      })}
-
-      <AutoLayout
-        onClick={() => newSound({ url: "", name: "new" })}
-        direction="horizontal"
-        horizontalAlignItems="center"
-        verticalAlignItems="center"
-        width="fill-parent"
-        height={45}
-        fill="#8B5CF6"
-        cornerRadius={8}
-      >
-        <WidgetText
-          fontSize={16}
-          width="fill-parent"
-          height="fill-parent"
-          horizontalAlignText="center"
-          verticalAlignText="center"
-          fill="#ffffff"
-          fontWeight="bold"
-        >
-          New Sound
-        </WidgetText>
-      </AutoLayout>
+            Add Sound
+          </WidgetText>
+        </AutoLayout>
+      )}
     </AutoLayout>
   );
 }
