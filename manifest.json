@@ -1,6 +1,7 @@
 {
   "name": "Soundboard",
   "id": "10074075004744806088",
+  "widgetApi": "1.0.0",
   "api": "1.0.0",
   "editorType": ["figjam"],
   "containsWidget": true,

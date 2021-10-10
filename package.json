@@ -18,7 +18,8 @@
   "dependencies": {
     "@figma/plugin-typings": "file:../../Downloads/plugin-typings",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react-dom": "^17.0.0",
+    "react-hook-form": "^7.16.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",

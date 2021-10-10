@@ -1,4 +1,4 @@
-const { widget, ui } = figma;
+const { widget, ui, showUI } = figma;
 
 const {
   AutoLayout,
@@ -11,52 +11,64 @@ const {
   usePropertyMenu,
 } = widget;
 
+// NOTE: Keep in sync with types in /ui-src/App.tsx
 interface Sound {
   url: string;
   name: string;
   imageUrl?: string;
 }
 
+interface OpenMessage {
+  intent: 'new' | 'edit' | 'play';
+  sound: Sound;
+}
+
 function Widget() {
-  const [sound, setSound] = useSyncedState<Sound | undefined>(
-    "sound",
-    undefined
+  const [sound, setSound] = useSyncedState<Sound | null>("sound", null);
+
+  function openUI(
+    intent: OpenMessage["intent"],
+    options: ShowUIOptions = { height: 300 }
+  ) {
+    return new Promise<void>((resolve) => {
+      showUI(__html__, options);
+
+      const data: OpenMessage = { intent, sound };
+      ui.postMessage(data);
+
+      ui.once("message", () => {
+        resolve();
+      });
+    });
+  }
+
+  usePropertyMenu(
+    [
+      {
+        tooltip: "Edit",
+        propertyName: "edit",
+        itemType: "action",
+      },
+    ],
+    ({ propertyName }) => {
+      switch (propertyName) {
+        case "edit":
+          return openUI("edit");
+        default:
+          throw new Error(`Unexpected property type: ${propertyName}`);
+      }
+    }
   );
 
-  async function playSound(sound: Sound) {
-    await new Promise<void>((resolve) => {
-      figma.showUI(__html__, { visible: false });
-      figma.ui.postMessage(sound);
-
-      figma.ui.once("message", ({ type }) => {
-        if (type === "close") {
-          resolve();
-        }
-      });
-    });
-  }
-
-  async function newSound(sound: Sound) {
-    await new Promise<void>((resolve) => {
-      figma.showUI(__html__, { height: 300 });
-      figma.ui.postMessage(sound);
-
-      figma.ui.once("message", ({ type }) => {
-        if (type === "addSound") {
-          resolve();
-        }
-      });
-    });
-  }
-
   useEffect(() => {
-    figma.ui.onmessage = (message) => {
+    ui.onmessage = (message) => {
       if (message.type === "addSound") {
         setSound(message.payload);
-        figma.ui.close();
+        ui.close();
       }
+
       if (message.type === "close") {
-        figma.ui.close();
+        ui.close();
       }
     };
   });
@@ -91,14 +103,19 @@ function Widget() {
     >
       {sound ? (
         <AutoLayout
-          onClick={() => playSound(sound)}
+          onClick={() => openUI('play', { visible: false })}
           width={100}
           height={130}
           fill={
-            colors[
-              sound.name.split("").reduce((a, b) => b.charCodeAt(0) + a, 0) %
-                colors.length
-            ]
+            // If there is an imageURL, then we return undefined, meaning there is no fill, which means the container is transparent.
+            // Otherwise, we fill with a (deterministic) random color.
+            sound.imageUrl
+              ? undefined
+              : colors[
+                  sound.name
+                    .split("")
+                    .reduce((a, b) => b.charCodeAt(0) + a, 0) % colors.length
+                ]
           }
           cornerRadius={8}
         >
@@ -107,7 +124,7 @@ function Widget() {
               width="fill-parent"
               height="fill-parent"
               src={sound.imageUrl}
-            ></WidgetImage>
+            />
           ) : (
             <WidgetText
               fontSize={16}
@@ -123,7 +140,7 @@ function Widget() {
         </AutoLayout>
       ) : (
         <AutoLayout
-          onClick={() => newSound({ url: "", name: "new" })}
+          onClick={() => openUI("new")}
           width={100}
           height={130}
           fill="#8B5CF6"
@@ -145,4 +162,5 @@ function Widget() {
     </AutoLayout>
   );
 }
+
 widget.register(Widget);
