@@ -94,7 +94,7 @@ function App() {
             <input
               type="text"
               className="shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent block w-full sm:text-sm border border-gray-300 rounded-md py-1 px-2"
-              placeholder="Duck sound"
+              placeholder="Sad violin"
               {...register("name", { required: true })}
             />
           </div>
