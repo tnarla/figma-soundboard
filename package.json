@@ -1,7 +1,7 @@
 {
-  "name": "WidgetTemplate",
+  "name": "soundboard",
   "version": "1.0.0",
-  "description": "WidgetTemplate",
+  "description": "sound board",
   "scripts": {
     "zip": "mkdir -p out && npm run build && zip -r out/create-widget-app.zip . -x node_modules/\\* -x plugin-typings/node_modules/\\* -x .\\* -x out/\\* -x plugin-typings/*.zip plugin-typings/.\\*",
     "format": "prettier --write .",
@@ -16,8 +16,10 @@
   "author": "Figma",
   "license": "MIT License",
   "dependencies": {
+    "@figma/plugin-typings": "file:../../Downloads/plugin-typings",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react-dom": "^17.0.0",
+    "react-hook-form": "^7.16.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
